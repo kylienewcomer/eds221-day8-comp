@@ -1,0 +1,91 @@
+---
+title: "lizard-viz"
+format: html
+warning: FALSE
+message: FALSE
+---
+```{r, include=FALSE}
+# General use packages:
+library(tidyverse)
+library(here)
+library(janitor)
+
+# Specifically for plots:
+library(patchwork)
+library(ggrepel)
+library(gghighlight)
+library(paletteer)
+library(ggExtra)
+library(ggbeeswarm)
+library(wesanderson)
+library(RColorBrewer)
+
+# And for another dataset we'll explore:
+library(gapminder)
+
+# Spatial
+library(sf)
+```
+
+```{r}
+lizards <- read_csv(here("data_tidy", "lizards.csv"))
+```
+```{r}
+#ggplot essentials three ways
+ggplot(lizards, aes(total_length, weight)) +
+  geom_point(aes(color= tail)) +
+  facet_wrap(~common_name) +
+  scale_color_manual(values = c("darkgreen", "lightpink")) +
+  theme() +
+  labs(title = "Distribution of Lizard",
+       x = "Length (mm)",
+      y = "Body Weight (g)",
+      color = "Tail Length")
+
+#ggplot(lizards) +
+  #geom_point(aes(x = total_length, y = weight))
+
+#ggplot() +
+  #geom_point(aes(data = lizards, x= total_length, y = weight))
+```
+
+```{r}
+ggplot(lizards, aes(total_length, weight, color= common_name)) +
+  geom_point(alpha = 0.75) +
+  #facet_wrap(~common_name) +
+  scale_color_manual(values = wes_palette(name = "BottleRocket1")) +
+  theme() +
+  labs(title = "Distribution of Lizard",
+       x = "Length (mm)",
+      y = "Body Weight (g)",
+      color = "Species")
+```
+
+```{r}
+ggplot(lizards, aes(x=total_length)) +
+  geom_histogram()
+```
+
+
+## Themes
+```{r}
+ggplot(lizards, aes(weight, common_name, color = total_length)) +
+  geom_jitter(alpha = 0.50) +
+  scale_color_continuous(type = "viridis") +
+  labs(x = "Body Weight (g)",
+       y = "Common Name",
+      color = "Total Length (mm)") +
+  theme_light()
+  
+```
+```{r}
+ggplot(lizards, aes(weight, site, color = common_name)) +
+  geom_jitter() +
+  scale_color_brewer(palette = "Dark2") +
+   labs(x = "Body Weight (g)",
+       y = "Site",
+      color = "Common Name")
+```
+
+
+
