@@ -97,9 +97,94 @@ liz_sum <- lizards %>%
 ggplot(liz_sum, aes(n, fct_reorder(common_name, n))) +
   geom_col() +
   #scale_color_brewer(palette = "Dark2") +
-   labs(x = "Total Lizards",
+   labs(x = "Individuals (n)",
        y = "Species Common Name")
       #color = "Common Name")
 ```
 
+## Advanced ggplot customization
+
+```{r}
+ggplot(lizards, aes(total_length, weight)) +
+  geom_point() +
+  scale_x_continuous(breaks = c(0, 250, 500),
+                     limits = c(0, 500)) +
+  scale_y_continuous(breaks = seq(from = 0, to = 70, by = 10),
+                     limits = c(0,70)) +
+  labs(x = "Lizard Length (mm)",
+       y = "Body Weight (g)") +
+  theme_classic()
+
+```
+```{r}
+lizard_counts <- lizards %>% 
+  mutate(date = lubridate::mdy(date)) %>% 
+  count(date)
+
+ggplot(lizard_counts, aes(date, n)) +
+  geom_line() +
+  scale_x_date(breaks = scales::breaks_width("2 years"), # See date_breaks for next year!
+               labels = scales::label_date("%y"))
+```
+
+### Customization of aesthetics with 'scale' function
+```{r}
+ggplot(lizards, aes(total_length, weight)) +
+  geom_point(aes(color = weight)) +
+  scale_color_gradientn(colors = c("orange", "hotpink", "navy", "red"))
+```
+```{r}
+ggplot(lizards, aes(total_length, weight)) +
+  geom_point(aes(color = weight)) +
+  scale_color_steps(low = "orange", high = "hotpink",
+                    breaks = seq(from = 0, to = 80, by =5))
+```
+
+```{r}
+ggplot(lizards, aes(common_name, total_length)) +
+  geom_boxplot(aes(fill = common_name), show.legend = FALSE) +
+  coord_flip()
+```
+```{r}
+lizards_mean <- lizards %>% 
+  mutate(common_name = fct_reorder(common_name, total_length, .fun = median))
+```
+
+```{r}
+
+ggplot(lizards_mean, aes(total_length, common_name)) +
+  geom_boxplot(aes(fill = common_name), show.legend = FALSE) +
+  scale_fill_paletteer_d(palette = "tvthemes::Alexandrite") +
+  labs( x = "Total Length (mm)",
+        y = "Species") +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+```
+#patchwork to creat compound figures
+```{r}
+p1 <- ggplot(lizards_mean, aes(total_length, common_name)) +
+  geom_boxplot(aes(fill = common_name), show.legend = FALSE) +
+  scale_fill_paletteer_d(palette = "tvthemes::Alexandrite") +
+  labs( x = "Total Length (mm)",
+        y = "Species") +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+
+p2 <- ggplot(lizards, aes(weight, common_name, color = total_length)) +
+  geom_jitter(alpha = 0.50) +
+  scale_color_continuous(type = "viridis") +
+  labs(x = "Body Weight (g)",
+       y = "Common Name",
+      color = "Total Length (mm)") +
+  theme_light()
+
+```
+
+```{r}
+# "|" puts plots next to each other, "/" puts plots on top of each other
+p3 <- ((p1 | p2) / ( p1 | p2)) & theme_bw()
+p3
+
+ggsave("test.png", p3)
+```
 
