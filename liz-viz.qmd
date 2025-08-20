@@ -86,6 +86,20 @@ ggplot(lizards, aes(weight, site, color = common_name)) +
        y = "Site",
       color = "Common Name")
 ```
+#Reorder data
 
+```{r}
+liz_sum <- lizards %>% 
+  count(common_name)
+```
+
+```{r}
+ggplot(liz_sum, aes(n, fct_reorder(common_name, n))) +
+  geom_col() +
+  #scale_color_brewer(palette = "Dark2") +
+   labs(x = "Total Lizards",
+       y = "Species Common Name")
+      #color = "Common Name")
+```
 
 
